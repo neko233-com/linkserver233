@@ -3,3 +3,5 @@ dist/
 *.exe
 *.test
 coverage.out
+cloudflare/worker/node_modules/
+

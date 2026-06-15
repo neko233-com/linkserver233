@@ -1,0 +1,13 @@
+{
+  "name": "linkserver233-cloudflare-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check src/index.mjs",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^4.22.0"
+  }
+}

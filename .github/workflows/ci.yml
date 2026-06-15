@@ -38,6 +38,11 @@ jobs:
       - name: Build
         run: go build ./...
 
+      - name: Validate Cloudflare worker files
+        run: |
+          node --check cloudflare/worker/src/index.mjs
+          node -e "JSON.parse(require('fs').readFileSync('cloudflare/worker/wrangler.jsonc', 'utf8'))"
+
       - name: Test (race + coverage)
         env:
           CGO_ENABLED: "1"

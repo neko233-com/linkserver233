@@ -1,0 +1,58 @@
+name: cloudflare-workers
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cloudflare/worker/**'
+      - '.github/workflows/cloudflare-workers.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-workers
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Preflight
+        id: preflight
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_WORKER_ORIGIN_BASE_URL: ${{ vars.CLOUDFLARE_WORKER_ORIGIN_BASE_URL }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for key in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_WORKER_ORIGIN_BASE_URL; do
+            if [ -z "${!key}" ]; then
+              echo "::notice::Skipping Cloudflare Workers deploy: missing ${key}"
+              missing=1
+            fi
+          done
+          if [ "$missing" -eq 0 ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy worker
+        if: steps.preflight.outputs.ready == 'true'
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: cloudflare/worker
+          secrets: |
+            ORIGIN_BASE_URL
+        env:
+          ORIGIN_BASE_URL: ${{ vars.CLOUDFLARE_WORKER_ORIGIN_BASE_URL }}

@@ -1,0 +1,8 @@
+{
+  "name": "linkserver233-edge",
+  "main": "src/index.mjs",
+  "compatibility_date": "2026-06-15",
+  "observability": {
+    "enabled": true
+  }
+}

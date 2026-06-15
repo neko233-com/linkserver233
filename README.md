@@ -25,6 +25,7 @@
 - **Auto-purge** — background janitor removes expired links.
 - **Agent-first** — `linkserver233 agent`, `GET /agent`, `GET /llms.txt`, stable JSON.
 - **One-click install** — `curl | bash` / `irm | iex`, modeled on `neko233-com/unicli`.
+- **Cloudflare support** — Cloudflare Workers edge proxy deployment and Cloudflare Pages docs deployment.
 
 ## Installation
 
@@ -194,6 +195,64 @@ linkserver233 ships a stable, agent-friendly contract:
 - Every link object always includes `short_url`, `status`, `expires_at`, and
   `remaining_clicks`, so agents never have to scrape HTML.
 
+## Cloudflare deployment
+
+linkserver233 now supports two Cloudflare deployment surfaces:
+
+- **Cloudflare Workers** via a companion edge proxy in `cloudflare/worker/`.
+  This does **not** run the Go binary inside Workers. Instead, it deploys a
+  Worker that forwards traffic to a self-hosted `linkserver233` origin while
+  preserving the exact API and redirect semantics.
+- **Cloudflare Pages** via a dedicated workflow that uploads the `docs/` static
+  site to a Cloudflare Pages project.
+
+### Cloudflare Workers
+
+Worker source lives in `cloudflare/worker/` and is designed for the common
+production setup where Cloudflare sits in front of your self-hosted Go service.
+
+Required deploy-time values:
+
+- `CLOUDFLARE_API_TOKEN` — GitHub Actions secret
+- `CLOUDFLARE_ACCOUNT_ID` — GitHub Actions secret
+- `CLOUDFLARE_WORKER_ORIGIN_BASE_URL` — GitHub Actions repository variable
+
+Optional:
+
+- `ORIGIN_AUTH_BEARER` — optional Worker secret; when set, the Worker adds
+  `Authorization: Bearer ...` when forwarding to the origin so you can lock the
+  origin down behind a shared secret. Set it manually with Wrangler or in the
+  Cloudflare dashboard after the first deploy.
+
+Manual local deploy:
+
+```bash
+cd cloudflare/worker
+npm install
+printf '%s' 'https://origin.example.com' | npx wrangler secret put ORIGIN_BASE_URL
+npx wrangler deploy
+```
+
+### Cloudflare Pages
+
+The repository includes a dedicated workflow to upload `docs/` to a Cloudflare
+Pages project.
+
+Required deploy-time values:
+
+- `CLOUDFLARE_API_TOKEN` — GitHub Actions secret
+- `CLOUDFLARE_ACCOUNT_ID` — GitHub Actions secret
+- `CLOUDFLARE_PAGES_PROJECT_NAME` — GitHub Actions repository variable
+
+Manual local deploy:
+
+```bash
+npx wrangler pages deploy docs --project-name=<your-pages-project>
+```
+
+The Cloudflare workflows are safe to leave enabled even when credentials are not
+configured: they self-skip instead of breaking the repository's normal CI.
+
 ## CI/CD & releases
 
 - **CI** ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs gofmt,
@@ -208,6 +267,8 @@ linkserver233 ships a stable, agent-friendly contract:
 
 - **Docs** ([`.github/workflows/pages.yml`](.github/workflows/pages.yml)) deploys
   `docs/` to GitHub Pages. Enable Pages → "GitHub Actions" in repository settings.
+- **Cloudflare Workers** ([`.github/workflows/cloudflare-workers.yml`](.github/workflows/cloudflare-workers.yml)) deploys the edge proxy from `cloudflare/worker/` when Cloudflare credentials are configured.
+- **Cloudflare Pages** ([`.github/workflows/cloudflare-pages.yml`](.github/workflows/cloudflare-pages.yml)) deploys the docs site to Cloudflare Pages when Cloudflare credentials are configured.
 
 Release artifacts:
 
