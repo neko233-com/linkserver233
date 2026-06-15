@@ -8,6 +8,7 @@
 [![release](https://github.com/neko233-com/linkserver233/actions/workflows/release.yml/badge.svg)](https://github.com/neko233-com/linkserver233/actions/workflows/release.yml)
 
 - 📚 Docs site: https://neko233-com.github.io/linkserver233/
+- 📘 GitHub Pages guide: https://neko233-com.github.io/linkserver233/github-pages.html
 - 🤖 Agent guide: [AGENTS.md](AGENTS.md) · machine index: [llms.txt](llms.txt)
 
 ## Features
@@ -267,6 +268,11 @@ configured: they self-skip instead of breaking the repository's normal CI.
 
 - **Docs** ([`.github/workflows/pages.yml`](.github/workflows/pages.yml)) deploys
   `docs/` to GitHub Pages. Enable Pages → "GitHub Actions" in repository settings.
+
+GitHub Pages 操作文档：
+
+- Published guide: https://neko233-com.github.io/linkserver233/github-pages.html
+- Source file: [`docs/github-pages.html`](docs/github-pages.html)
 - **Cloudflare Workers** ([`.github/workflows/cloudflare-workers.yml`](.github/workflows/cloudflare-workers.yml)) deploys the edge proxy from `cloudflare/worker/` when Cloudflare credentials are configured.
 - **Cloudflare Pages** ([`.github/workflows/cloudflare-pages.yml`](.github/workflows/cloudflare-pages.yml)) deploys the docs site to Cloudflare Pages when Cloudflare credentials are configured.
 

@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>linkserver233 GitHub Pages 发布操作指南</title>
+<meta name="description" content="linkserver233 文档站 GitHub Pages 发布、触发、验证与排障操作指南。">
+<style>
+  :root {
+    --bg: #0b1120;
+    --panel: #111c33;
+    --panel-2: #16223d;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --accent-2: #a78bfa;
+    --border: #1f2d4d;
+    --code: #0a1124;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(1200px 600px at 80% -10%, #15233f 0%, var(--bg) 55%);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  header, main, footer { max-width: 980px; margin: 0 auto; padding: 0 1.25rem; }
+  .hero { padding: 3.5rem 1.25rem 1.5rem; }
+  .hero h1 { font-size: 2.2rem; margin: 0 0 .6rem; letter-spacing: -.02em; }
+  .hero p { color: var(--muted); max-width: 760px; margin: 0 0 1rem; }
+  .cta { display: inline-flex; gap: .75rem; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: .65rem 1.2rem; border-radius: 10px; font-weight: 600; }
+  .btn-primary { background: var(--accent); color: #04121f; }
+  .btn-ghost { background: var(--panel); color: var(--text); border: 1px solid var(--border); }
+  section { margin: 2rem 0; }
+  h2 { font-size: 1.45rem; border-left: 3px solid var(--accent); padding-left: .6rem; }
+  h3 { margin-bottom: .4rem; }
+  p code, li code, td code { background: var(--panel-2); padding: .1rem .4rem; border-radius: 6px; font-size: .88em; }
+  pre {
+    background: var(--code);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+    font-size: .9rem;
+  }
+  .card, .note {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1rem 1.1rem;
+  }
+  .note {
+    background: var(--panel-2);
+    border-left: 3px solid var(--accent-2);
+    color: var(--muted);
+  }
+  ol, ul { padding-left: 1.25rem; }
+  li { margin: .35rem 0; }
+  table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; }
+  th, td { text-align: left; padding: .6rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  footer { text-align: center; color: var(--muted); padding: 2rem 1.25rem 3rem; border-top: 1px solid var(--border); margin-top: 3rem; }
+</style>
+</head>
+<body>
+<header>
+  <div class="hero">
+    <h1>GitHub Pages 发布操作指南</h1>
+    <p>这份文档说明 linkserver233 的 GitHub Pages 文档站如何配置、触发、验证和排障。目标是让你在仓库维护、发版和日常文档更新时，不需要再反复翻 workflow 细节。</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="index.html">返回文档首页</a>
+      <a class="btn btn-ghost" href="https://github.com/neko233-com/linkserver233/blob/main/.github/workflows/pages.yml">查看 workflow</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section>
+    <h2>发布对象</h2>
+    <div class="card">
+      <p>当前 GitHub Pages 站点发布的是以下内容：</p>
+      <ul>
+        <li><code>docs/</code> 目录下的所有静态文件</li>
+        <li>根目录的 <code>AGENTS.md</code></li>
+        <li>根目录的 <code>llms.txt</code></li>
+      </ul>
+      <p>公开地址：</p>
+      <ul>
+        <li>站点首页：<a href="https://neko233-com.github.io/linkserver233/">https://neko233-com.github.io/linkserver233/</a></li>
+        <li>本页：<a href="https://neko233-com.github.io/linkserver233/github-pages.html">https://neko233-com.github.io/linkserver233/github-pages.html</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>一次性配置</h2>
+    <ol>
+      <li>进入仓库 <code>Settings</code>。</li>
+      <li>打开 <code>Pages</code>。</li>
+      <li>在 <code>Build and deployment</code> 里选择 <code>Source = GitHub Actions</code>。</li>
+      <li>确认默认分支是 <code>main</code>。</li>
+      <li>确认仓库没有禁用 GitHub Actions 的 Pages 部署权限。</li>
+    </ol>
+    <div class="note">
+      当前仓库已经配置成 GitHub Actions 模式，所以正常情况下不需要重复做这一步，除非仓库设置被人改回去了。
+    </div>
+  </section>
+
+  <section>
+    <h2>workflow 触发条件</h2>
+    <table>
+      <thead>
+        <tr><th>触发方式</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>push</code> 到 <code>main</code></td><td>当改动命中 <code>docs/**</code>、<code>AGENTS.md</code>、<code>llms.txt</code> 或 <code>.github/workflows/pages.yml</code> 时自动触发。</td></tr>
+        <tr><td><code>workflow_dispatch</code></td><td>可以在 GitHub Actions 页面手动触发一次，不需要额外提交。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>日常发布步骤</h2>
+    <ol>
+      <li>修改 <code>docs/</code> 里的页面，或者更新 <code>AGENTS.md</code> / <code>llms.txt</code>。</li>
+      <li>本地检查文档内容是否正确。</li>
+      <li>提交并 push 到 <code>main</code>。</li>
+      <li>等待 <code>pages</code> workflow 完成。</li>
+      <li>打开站点 URL 验证页面是否已更新。</li>
+    </ol>
+
+    <pre><code>git add docs AGENTS.md llms.txt
+git commit -m "docs: update GitHub Pages content"
+git push origin main</code></pre>
+  </section>
+
+  <section>
+    <h2>本地模拟 Pages 装配</h2>
+    <p>Pages workflow 实际做的事情很简单：把 <code>docs/*</code> 复制到一个临时站点目录，再把 <code>AGENTS.md</code> 和 <code>llms.txt</code> 一起放进去。</p>
+
+    <pre><code>mkdir _site
+cp -r docs/* _site/
+cp llms.txt _site/llms.txt
+cp AGENTS.md _site/AGENTS.md</code></pre>
+
+    <p>Windows PowerShell 等价操作：</p>
+
+    <pre><code>New-Item -ItemType Directory -Force _site | Out-Null
+Copy-Item docs\* _site -Recurse -Force
+Copy-Item llms.txt _site\llms.txt -Force
+Copy-Item AGENTS.md _site\AGENTS.md -Force</code></pre>
+  </section>
+
+  <section>
+    <h2>GitHub 上查看与手动触发</h2>
+    <h3>Web UI</h3>
+    <ol>
+      <li>打开仓库的 <code>Actions</code> 页面。</li>
+      <li>选择 workflow：<code>pages</code>。</li>
+      <li>查看最近一次 run 的日志，或者点 <code>Run workflow</code> 手动触发。</li>
+    </ol>
+
+    <h3>使用 gh CLI</h3>
+    <pre><code># 查看 Pages 配置
+gh api repos/neko233-com/linkserver233/pages
+
+# 查看最近 workflow runs
+gh run list --limit 10 --json workflowName,status,conclusion,headBranch,url
+
+# 监视 pages workflow
+gh run watch &lt;run-id&gt; --exit-status</code></pre>
+  </section>
+
+  <section>
+    <h2>验证清单</h2>
+    <ul>
+      <li>Workflow 结论是 <code>success</code></li>
+      <li>站点首页可访问：<a href="https://neko233-com.github.io/linkserver233/">/</a></li>
+      <li>新增页面可访问，例如本页：<a href="https://neko233-com.github.io/linkserver233/github-pages.html">/github-pages.html</a></li>
+      <li><code>AGENTS.md</code> 和 <code>llms.txt</code> 在站点根目录可访问</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>常见问题</h2>
+    <div class="card">
+      <h3>1. push 了但 pages workflow 没触发</h3>
+      <p>通常是因为这次提交没有改到触发路径。只有 <code>docs/**</code>、<code>AGENTS.md</code>、<code>llms.txt</code>、<code>.github/workflows/pages.yml</code> 这些路径命中时才会自动触发。</p>
+
+      <h3>2. workflow 成功了但页面还是旧的</h3>
+      <p>先硬刷新，再等几十秒到几分钟的 CDN 更新。如果还是不对，检查本次 run 里实际打包进 <code>_site</code> 的文件。</p>
+
+      <h3>3. 页面 404</h3>
+      <p>优先检查文件名是否真的在 <code>docs/</code> 下，以及链接路径是否和目标文件名一致。对于单文件页面，URL 就是文件名，例如 <code>docs/github-pages.html</code> 对应 <code>/github-pages.html</code>。</p>
+
+      <h3>4. Pages 配置丢了</h3>
+      <p>重新进入仓库 Settings → Pages，把 Source 切回 <code>GitHub Actions</code>。</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>和 release 的关系</h2>
+    <div class="note">
+      GitHub Pages 文档发布和二进制 release 是两条独立流水线。更新文档不需要打 tag；只有发版时才需要推送 <code>v*</code> 标签触发 release workflow。
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>linkserver233 · GitHub Pages 发布操作指南 · <a href="https://github.com/neko233-com/linkserver233">github.com/neko233-com/linkserver233</a></p>
+</footer>
+</body>
+</html>
