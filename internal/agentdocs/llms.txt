@@ -1,0 +1,43 @@
+# linkserver233
+
+> Self-hosted, agent-first link server: long links, short links, custom path
+> mapping, expiration, one-time/click limits, password protection, and a clean
+> JSON API. Agents should call the JSON API instead of scraping HTML.
+
+Install: https://github.com/neko233-com/linkserver233#installation
+
+## Primary docs
+
+- [README](https://github.com/neko233-com/linkserver233/blob/main/README.md): overview, install, full API reference
+- [AGENTS.md](https://github.com/neko233-com/linkserver233/blob/main/AGENTS.md): when and how agents should use the API
+- [Docs site](https://neko233-com.github.io/linkserver233/): hosted documentation
+
+## Agent quick start
+
+1. `GET /healthz` — confirm the server is up.
+2. Send `Authorization: Bearer <token>` on `/api/v1/*` when a token is configured.
+3. `POST /api/v1/links` with `{"target_url": "..."}` to shorten; add `path`,
+   `expires_in`, `max_clicks`, or `password` as needed.
+4. Parse the JSON response — `short_url`, `status`, `expires_at`,
+   `remaining_clicks` are always present.
+
+## Common tasks
+
+- Shorten: `POST /api/v1/links {"target_url":"https://..."}`
+- Custom path: `POST /api/v1/links {"path":"docs/latest","target_url":"https://..."}`
+- Expiring: add `{"expires_in":"24h"}` or `{"expires_at":"<RFC3339>"}`
+- One-time: add `{"max_clicks":1}`
+- Password: add `{"password":"secret"}`, visit with `?pw=secret` or `X-Link-Password`
+- List/filter: `GET /api/v1/links?status=active&tag=docs&q=guide&limit=50&offset=0`
+- Stats: `GET /api/v1/stats`
+- Bulk import: `POST /api/v1/import`
+
+## Install one-liners
+
+- macOS/Linux: `curl -fsSL https://raw.githubusercontent.com/neko233-com/linkserver233/main/scripts/install.sh | bash`
+- Windows: `irm https://raw.githubusercontent.com/neko233-com/linkserver233/main/scripts/install.ps1 | iex`
+
+## Optional
+
+- [Releases](https://github.com/neko233-com/linkserver233/releases)
+- [CONTRIBUTING](https://github.com/neko233-com/linkserver233/blob/main/CONTRIBUTING.md)

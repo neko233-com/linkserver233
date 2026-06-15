@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>linkserver233 — self-hosted, agent-first link server</title>
+<meta name="description" content="linkserver233 is a single-binary, self-hosted link server: short links, custom paths, expiration, one-time links, password protection, and a clean JSON API for agents.">
+<style>
+  :root {
+    --bg: #0b1120;
+    --panel: #111c33;
+    --panel-2: #16223d;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --accent-2: #a78bfa;
+    --border: #1f2d4d;
+    --code: #0a1124;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(1200px 600px at 80% -10%, #15233f 0%, var(--bg) 55%);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  header, main, footer { max-width: 980px; margin: 0 auto; padding: 0 1.25rem; }
+  .hero { padding: 4rem 1.25rem 2rem; text-align: center; }
+  .hero h1 { font-size: 2.6rem; margin: 0 0 .5rem; letter-spacing: -.02em; }
+  .hero p { font-size: 1.15rem; color: var(--muted); max-width: 640px; margin: 0 auto 1.5rem; }
+  .badges { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .badge { background: var(--panel); border: 1px solid var(--border); border-radius: 999px; padding: .25rem .8rem; font-size: .85rem; color: var(--muted); }
+  .cta { display: inline-flex; gap: .75rem; flex-wrap: wrap; justify-content: center; }
+  .btn { display: inline-block; padding: .7rem 1.3rem; border-radius: 10px; font-weight: 600; }
+  .btn-primary { background: var(--accent); color: #04121f; }
+  .btn-ghost { background: var(--panel); color: var(--text); border: 1px solid var(--border); }
+  section { margin: 2.5rem 0; }
+  h2 { font-size: 1.5rem; border-left: 3px solid var(--accent); padding-left: .6rem; }
+  pre {
+    background: var(--code); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1rem 1.1rem; overflow-x: auto; font-size: .9rem;
+  }
+  code { font-family: "SF Mono", "JetBrains Mono", Consolas, monospace; }
+  p code, li code, td code { background: var(--panel-2); padding: .1rem .4rem; border-radius: 6px; font-size: .85em; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.2rem; }
+  .card h3 { margin: 0 0 .4rem; font-size: 1.05rem; }
+  .card p { margin: 0; color: var(--muted); font-size: .92rem; }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; display: block; overflow-x: auto; }
+  th, td { text-align: left; padding: .55rem .6rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  .note { background: var(--panel-2); border: 1px solid var(--border); border-left: 3px solid var(--accent-2); border-radius: 10px; padding: .9rem 1.1rem; color: var(--muted); }
+  footer { text-align: center; color: var(--muted); padding: 2rem 1.25rem 3rem; border-top: 1px solid var(--border); margin-top: 3rem; }
+</style>
+</head>
+<body>
+<header>
+  <div class="hero">
+    <h1>linkserver233</h1>
+    <p>A single-binary, self-hosted link server. Short links, custom paths, expiration, one-time links, password protection — with a clean JSON API built for agents.</p>
+    <div class="badges">
+      <span class="badge">Go 1.26</span>
+      <span class="badge">Zero runtime dependencies</span>
+      <span class="badge">Cross-platform</span>
+      <span class="badge">Agent-first</span>
+    </div>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://github.com/neko233-com/linkserver233">View on GitHub</a>
+      <a class="btn btn-ghost" href="#install">Install</a>
+      <a class="btn btn-ghost" href="AGENTS.md">Agent guide</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="install">
+    <h2>Install</h2>
+    <p>macOS / Linux:</p>
+    <pre><code>curl -fsSL https://raw.githubusercontent.com/neko233-com/linkserver233/main/scripts/install.sh | bash</code></pre>
+    <p>Windows (PowerShell):</p>
+    <pre><code>irm https://raw.githubusercontent.com/neko233-com/linkserver233/main/scripts/install.ps1 | iex</code></pre>
+    <p>Go toolchain:</p>
+    <pre><code>go install github.com/neko233-com/linkserver233/cmd/linkserver233@latest</code></pre>
+  </section>
+
+  <section>
+    <h2>Features</h2>
+    <div class="grid">
+      <div class="card"><h3>Short links</h3><p>Auto-generated collision-resistant short codes.</p></div>
+      <div class="card"><h3>Custom paths</h3><p>Multi-segment vanity URLs like <code>docs/latest</code>.</p></div>
+      <div class="card"><h3>Expiration</h3><p>Relative (<code>30d</code>, <code>24h</code>) or absolute RFC3339 TTLs, enforced by default.</p></div>
+      <div class="card"><h3>One-time links</h3><p>Atomic click budgets — burn-after-reading URLs.</p></div>
+      <div class="card"><h3>Password protection</h3><p>PBKDF2-hashed secrets with an agent-friendly bypass.</p></div>
+      <div class="card"><h3>SSRF protection</h3><p>Private / internal redirect targets are rejected.</p></div>
+      <div class="card"><h3>Rate limiting</h3><p>Per-client token bucket guards every endpoint.</p></div>
+      <div class="card"><h3>Analytics</h3><p>Click counts, last-visited timestamps, and aggregate stats.</p></div>
+      <div class="card"><h3>Tags &amp; search</h3><p>Filter and paginate the link catalog.</p></div>
+      <div class="card"><h3>Bulk import/export</h3><p>Move catalogs between instances via JSON.</p></div>
+      <div class="card"><h3>Auto-purge</h3><p>Background janitor removes expired links.</p></div>
+      <div class="card"><h3>Agent-first</h3><p><code>/agent</code>, <code>/llms.txt</code>, and a stable JSON contract.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Quick start</h2>
+    <pre><code># Run the server (every link expires in 30 days by default)
+linkserver233 --addr :8080 --base-url https://go.example.com
+
+# Shorten a long URL
+curl -X POST http://127.0.0.1:8080/api/v1/links \
+  -H "Content-Type: application/json" \
+  -d '{"target_url":"https://example.com/some/really/long/url"}'
+
+# One-time, expiring, password-protected vanity link
+curl -X POST http://127.0.0.1:8080/api/v1/links \
+  -H "Content-Type: application/json" \
+  -d '{"path":"launch","target_url":"https://example.com/launch","expires_in":"24h","max_clicks":1,"password":"s3cret"}'</code></pre>
+  </section>
+
+  <section>
+    <h2>API reference</h2>
+    <table>
+      <thead><tr><th>Method &amp; path</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>POST /api/v1/links</code></td><td>Create a short or custom link.</td></tr>
+        <tr><td><code>GET /api/v1/links</code></td><td>List/filter links (<code>status</code>, <code>tag</code>, <code>q</code>, <code>limit</code>, <code>offset</code>).</td></tr>
+        <tr><td><code>GET /api/v1/links/{path}</code></td><td>Show one link.</td></tr>
+        <tr><td><code>PUT /api/v1/links/{path}</code></td><td>Update target, expiry, password, tags, or enabled state.</td></tr>
+        <tr><td><code>DELETE /api/v1/links/{path}</code></td><td>Delete a link.</td></tr>
+        <tr><td><code>GET /api/v1/stats</code></td><td>Aggregate statistics and top links.</td></tr>
+        <tr><td><code>POST /api/v1/import</code></td><td>Bulk import (create or replace).</td></tr>
+        <tr><td><code>GET /{path}</code></td><td>Public redirect (query string is merged into the target).</td></tr>
+        <tr><td><code>GET /healthz</code></td><td>Health check.</td></tr>
+        <tr><td><code>GET /agent</code> · <code>GET /llms.txt</code></td><td>Agent usage guide and machine-readable index.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Security &amp; time limits</h2>
+    <div class="note">
+      Links expire by default (<code>--default-ttl 30d</code>). Use <code>--max-ttl</code> to
+      cap lifetimes, <code>--require-expiry</code> to forbid permanent links, and
+      <code>--admin-token</code> to require a Bearer token on every <code>/api/v1/*</code>
+      call. Redirect targets pointing at loopback, private, link-local, or
+      cloud-metadata addresses are rejected to mitigate SSRF / open-redirect abuse.
+    </div>
+  </section>
+
+  <section>
+    <h2>For agents</h2>
+    <p>linkserver233 ships an agent-first contract. Agents should read
+      <a href="AGENTS.md">AGENTS.md</a> or fetch <a href="llms.txt">llms.txt</a>,
+      then call the JSON API directly. Every link object always includes
+      <code>short_url</code>, <code>status</code>, <code>expires_at</code>, and
+      <code>remaining_clicks</code>.</p>
+  </section>
+</main>
+
+<footer>
+  <p>linkserver233 · MIT License · <a href="https://github.com/neko233-com/linkserver233">github.com/neko233-com/linkserver233</a></p>
+</footer>
+</body>
+</html>

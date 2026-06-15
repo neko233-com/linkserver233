@@ -1,0 +1,62 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          built_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          for target in \
+            linux/amd64 \
+            linux/arm64 \
+            darwin/amd64 \
+            darwin/arm64 \
+            windows/amd64 \
+            windows/arm64
+          do
+            goos="${target%/*}"
+            goarch="${target#*/}"
+            ext=""
+            if [ "$goos" = "windows" ]; then
+              ext=".exe"
+            fi
+
+            output="dist/linkserver233-${goos}-${goarch}${ext}"
+            echo "Building ${output}"
+            GOOS="$goos" GOARCH="$goarch" CGO_ENABLED=0 \
+              go build -trimpath \
+              -ldflags "-s -w -X github.com/neko233-com/linkserver233/internal/buildinfo.Version=${GITHUB_REF_NAME} -X github.com/neko233-com/linkserver233/internal/buildinfo.Commit=${GITHUB_SHA} -X github.com/neko233-com/linkserver233/internal/buildinfo.BuiltAt=${built_at}" \
+              -o "$output" ./cmd/linkserver233
+          done
+
+          sha256sum dist/* > dist/SHA256SUMS
+
+      - name: Publish release with gh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes
